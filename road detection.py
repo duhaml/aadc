@@ -297,6 +297,43 @@ def annotate_video(input_file, output_file):
 	video = VideoFileClip(input_file)
 	annotated_video = video.fl_image(annotate_image_array)
 	annotated_video.write_videofile(output_file, audio=False)
+	
+
+### DIRECTION ###
+
+def vanishingPoint(right_m, right_b, left_m, left_b):
+    '''
+    each lane is a line defined by an equation of the form y = side_m*x + side_b
+    :param right_m: slope of the right lane
+    :param right_b: y-intercept of the right lane
+    :param left_m: slope of the left lane
+    :param left_b: y-intercept of the left lane
+    :return: the intersect of the two lines(i.e. the point the car should head for)
+    '''
+    if right_m==left_m: #parralel lines
+        return
+    else:
+        x = (right_m-left_m)/(left_b-right_b)
+        y = right_m*x + right_b
+        return x,y
+
+def direction(img,vanishingPoint):
+    '''
+    :param vanishingPoint: the point to which the car should head (coordinates in relative size of the image)
+    :return: an angle in radians, positive when it should turn right
+    '''
+    if vanishingPoint == None:
+        return
+    else:
+        x_center = img.shape[1]/2 #x coordinate of the center of the image
+        x,y = vanishingPoint
+        theta = np.arctan( (x-x_center)/y )
+        return theta
+attention='''
+séparation de voies
+intersections
+...
+'''
 
 # End helper functions
 
