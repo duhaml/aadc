@@ -1,12 +1,10 @@
 import os
-
 from PIL import Image
 
 # CONSTANTS
 stand_size = (2592, 1944)
 stand_width = 1500
 ratio = stand_size[0] / stand_size[1]
-
 
 # FORMAT CHANGE
 def to_jpg(img_path):

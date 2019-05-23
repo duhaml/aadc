@@ -21,7 +21,7 @@ def show_image(img, title, scale=scale_g):
     cv2.destroyAllWindows()
 
 
-def detect_image_component(image, components, scale=scale_g, show=False):
+def detect_image_component(image, components, show=False):
     """takes an image and shows the mask of each components
     on components list
     The component list has lists of 2 lists with 3 elements """

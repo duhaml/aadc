@@ -1,11 +1,8 @@
 import os
 import Preprocessing_module as pm
-import cv2
-import numpy as np
 import math
 import numpy as np
 import cv2
-
 
 # CONSTANTS
 # create function to have better components
@@ -59,10 +56,6 @@ def find_shape(image, show=False):
     return polygons
 
 
-# voir si appliquer deux fois améliore le truc
-# pm.image_contour(pm.detect_image_component('test_rouge.jpg', components)[1], show = True)
-# find_shape(pm.detect_image_component(cv2.imread('test_rouge.jpg'), detection_components)[1], show = True)
-
 def is_narrow(polygon):
     s = polygon.shape[0]
     maxi = 0
@@ -85,10 +78,6 @@ def is_contained(polygon1, polygon2):
     return True
 
 
-# print(np.array([[[ 780,  877]], [[ 962,  557]], [[1310,  898]]])[2,0,0])
-# print(is_contained(np.array([[[ 864,  835]],[[ 971,  603]],[[1204,  837]]]),np.array([[[ 780,  877]], [[ 962,  557]], [[1310,  898]]])))
-# print(cv2.pointPolygonTest(np.array([[[ 780,  877]], [[ 962,  557]], [[1310,  898]]]),()))
-
 def principal_polygons(polygons):
     plg = polygons.copy()
     n = len(polygons)
@@ -98,8 +87,6 @@ def principal_polygons(polygons):
                 plg = [x for x in plg if not np.array_equal(x, polygons[j])]
     return plg
 
-
-# print(principal_polygons([np.array([[[ 864,  835]],[[ 971,  603]],[[1204,  837]]]),np.array([[[ 780,  877]], [[ 962,  557]], [[1310,  898]]])]))
 
 def polygone_interessant(polygons):
     """finds the interesting polygons that have a suficiently large shape
@@ -229,11 +216,11 @@ def classify(image, triangles, rectangles, circles, circle_color):
     return classed_triangles, classed_rectangles, classed_circles
 
 
-def trouve_panneau(image, verify=True):
+def trouve_panneau(image):
     """takes the image path and
     shows the cropped image containing the traffic sign"""
     img = cv2.imread(image)
-    image_masks = pm.each_image(pm.detect_image_component(img, detection_components), pm.image_contour, shows=True)
+    image_masks = pm.each_image(pm.detect_image_component(img, detection_components), pm.image_contour)
     masks_polygons = pm.each_image(image_masks, find_shape, i=1)
     for polygons in masks_polygons:
         triangles, rectangles, circles = polygone_interessant(polygons)
@@ -258,6 +245,7 @@ def trouve_panneau(image, verify=True):
 
 
 def montre_polygones(image_path):
+    """takes an images path and shows the colored polygons on the image"""
     img = cv2.imread(image_path)
     image_masks = pm.each_image(pm.detect_image_component(img, detection_components), pm.image_contour)
     masks_polygons = pm.each_image(image_masks, find_shape, i=1)
@@ -269,39 +257,10 @@ def montre_polygones(image_path):
     pm.show_image(img, 'polygones')
 
 
-def montre_panneau(image_path, title=""):
-    """takes the image_path and shows the image with the highlighted
-    traffic signs"""
-    img = cv2.imread(image_path)
-    image_masks = pm.each_image(pm.detect_image_component(img, detection_components), pm.image_contour)
-    masks_polygons = pm.each_image(image_masks, find_shape, i=1)
-    for polygons in masks_polygons:
-        triangles, rectangles, circles = polygone_interessant(polygons)
-        for triangle in triangles:
-            (x, y), h, w = capt_rectangle(triangle)
-            ratio = h / w
-            if ratio < 2 and ratio > 0.5:
-                cv2.polylines(img, [np.array([[[x, y]], [[x, y + h]], [[x + w, y + h]], [[x + w, y]]])], True,
-                              (255, 0, 0), thickness=2)
-        for rectangle in rectangles:
-            (x, y), h, w = capt_rectangle(rectangle)
-            ratio = h / w
-            if ratio < 2 and ratio > 0.5:
-                cv2.polylines(img, [np.array([[[x, y]], [[x, y + h]], [[x + w, y + h]], [[x + w, y]]])], True,
-                              (0, 255, 0), thickness=2)
-        for circle in circles:
-            (x, y), h, w = capt_rectangle(circle)
-            ratio = h / w
-            if ratio < 2 and ratio > 0.5:
-                cv2.polylines(img, [np.array([[[x, y]], [[x, y + h]], [[x + w, y + h]], [[x + w, y]]])], True,
-                              (0, 0, 255), thickness=2)
-    pm.show_image(img, title + 'polygones')
-
-
 def montre_panneau_verif(image_path, title="", verify=True):
     """takes the image_path and shows the image with the highlighted
-    traffic signs"""
-    # start = time.perf_counter()
+    traffic signs and by verifying that the rectangle containing the sign
+    is not too flat and classes them if verify"""
     img = cv2.imread(image_path)
     image_masks = pm.each_image(pm.detect_image_component(img, detection_components), pm.image_contour)
     masks_polygons = pm.each_image(image_masks, find_shape, i=1)
@@ -309,7 +268,7 @@ def montre_panneau_verif(image_path, title="", verify=True):
     for polygons in masks_polygons:
         triangles, rectangles, circles = polygone_interessant(polygons)
         if verify:
-            classify(img, triangles, rectangles, circles, i)
+            classed_triangles, classed_rectangles, classed_circles = classify(img, triangles, rectangles, circles, i)
         else:
             for triangle in triangles:
                 (x, y), h, w = capt_rectangle(triangle)
@@ -333,32 +292,78 @@ def montre_panneau_verif(image_path, title="", verify=True):
     pm.show_image(img, title + 'polygones')
 
 
-def detect_directory(directory):
+
+def give_signs(img):
+    """ takes an image and returns the array of the cropped_image
+    containing the polygons"""
+    image_masks = pm.each_image(pm.detect_image_component(img, detection_components), pm.image_contour)
+    masks_polygons = pm.each_image(image_masks, find_shape, i=1)
+    i = 0
+    classed_polygons = {"triangles": {"rwb": [], "rw": []},
+                        "rectangles": [],
+                        "circles": {"bw": [], "rwb": []}}
+    for polygons in masks_polygons:
+        triangles, rectangles, circles = polygone_interessant(polygons)
+        """takes the three kinds of signs and the circle base color
+        which is 0 for blue and 1 for red and classes them """
+        for triangle in triangles:
+            (x, y), h, w = capt_rectangle(triangle)
+            crop_img = img[y:y + h, x:x + w]
+            ratio = h / w
+            translated_triangle = triangle - np.tile([[x, y]], (triangle.shape[0], 1, 1))
+            clas = verif_triangle(translated_triangle, crop_img)
+            if ratio < 2 and ratio > 0.5 and clas != "nothing":
+                classed_polygons["triangles"][clas].append(crop_img)
+        for rectangle in rectangles:
+            (x, y), h, w = capt_rectangle(rectangle)
+            crop_img = img[y:y + h, x:x + w]
+            ratio = h / w
+            translated_rectangle = rectangle - np.tile([[x, y]], (rectangle.shape[0], 1, 1))
+            clas = verif_rectangle(translated_rectangle, crop_img)
+            if ratio < 2 and ratio > 0.5 and clas != "nothing":
+                classed_polygons["rectangles"].append(crop_img)
+        for circle in circles:
+            (x, y), h, w = capt_rectangle(circle)
+            crop_img = img[y:y + h, x:x + w]
+            ratio = h / w
+            translated_circle = circle - np.tile([[x, y]], (circle.shape[0], 1, 1))
+            clas = verif_circle(translated_circle, i, crop_img)
+            if ratio < 2 and ratio > 0.5 and clas != "nothing":
+                classed_polygons["circles"][clas].append(crop_img)
+        i+=1
+    return classed_polygons
+
+
+def show_polygones(dico):
+    """test function to see if the precedent function returns the good arrays"""
+    for key in dico.keys():
+        if key == "rectangles":
+            for rectangle in dico["rectangles"]:
+                pm.show_image(rectangle,"rectangle")
+        else:
+            for sub_key in dico[key].keys():
+                for polygon in dico[key][sub_key]:
+                    pm.show_image(polygon,"circle or triangle")
+
+
+def detect_directory(directory, function):
     """takes a directory path containing the images and detects the signs
     in each image in the directory"""
     for root, dirs, files in os.walk(directory):
         for filename in files:
-            montre_panneau_verif(directory + '\\' + filename, filename)
+            function(directory + '\\' + filename, filename)
 
 
 """Tests"""
 
-# trouve_panneau(r'Test_images\test_rouge.jpg') #marche
+"""takes the image path and shows 
+the cropped images containing the traffic sign"""
+# trouve_panneau(r'Test_images\test_rouge.jpg')  # marche
 # trouve_panneau('test_rouge_2.jpg')
 # trouve_panneau('stop.jpg') #marche
 # trouve_panneau('russian_image.jpg') #marche
 # trouve_panneau('signalisation.jpg') #marche
 # trouve_panneau('test.jpg') #marche plus ou moins
-
-# montre_panneau('test_rouge.jpg')#marche
-# montre_panneau('test_rouge_2.jpg')#marche
-# montre_panneau('stop.jpg') #marche
-# montre_panneau('russian_image.jpg') #marche
-# montre_panneau('test.jpg') #marche plus ou moins
-# montre_panneau('limvit.jpg')#marche
-# montre_polygones('test_bleu_2.ppm')
-# montre_panneau('test_bleu_2_copy.ppm')
-
 
 # montre_polygones('test_rouge.jpg')
 # montre_polygones('test_rouge_2.jpg')#marche
@@ -366,7 +371,6 @@ def detect_directory(directory):
 # montre_polygones('russian_image.jpg') #marche
 # montre_polygones('test.jpg') #marche plus ou moins
 # montre_polygones('limvit.jpg')#marche
-
 
 # montre_panneau_verif('limvit.jpg', verify = True)#marche
 # montre_panneau_verif('russian_image.jpg')#marche
@@ -376,4 +380,6 @@ def detect_directory(directory):
 # montre_panneau_verif('test_rouge_2.jpg')#marche
 # montre_panneau_verif('test_size.jpg')#ne marche pas
 
-# detect_directory(r"C:\Users\Antonio\Documents\Projet_Autonomous_Driving\Algorithmes_panneaux\Dataset\Detection_dataset")
+# print(give_signs(cv2.imread(r'Test_images\test_rouge.jpg')))
+
+detect_directory(r"C:\Users\Antonio\Documents\Projet_Autonomous_Driving\Algorithmes_panneaux\Dataset\Detection_dataset", montre_panneau_verif)
