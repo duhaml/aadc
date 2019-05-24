@@ -134,3 +134,49 @@ def lane_following_display(stage = all, duration=np.inf, saveVideo=False):
             if key == ord("q"):  #break the loop when 'q' key is pressed
                 break
 
+
+                
+                
+
+  def lane_following_display(stage = all, duration=np.inf, saveVideo=False):
+    for frame in camera.capture_continuous(rawCapture, format='bgr', use_video_port=True):
+        image = frame.array  #grab the raw numpy array representing the image
+
+        ## core of line detection process
+
+        #white and yellow filtering
+        color_filtered_image = ld.filter_colors(image)
+        if stage == 'filter_colors' :
+            cv2.imshow("Frame", color_filtered_image)
+            key = cv2.waitKey(1) & 0xFF
+            rawCapture.truncate(0)  #clear the system in preparation for the next frame
+            if key == ord("q"):  #break the loop when 'q' key is pressed
+                break
+
+
+        #edge detection
+        canny_image = ld.canny(color_filtered_image, ld.low_threshold, ld.high_threshold)  # normalement ne va pas détecter les bordures de la ROI, et tout est noir, mais à voir
+        if stage == 'canny':
+            cv2.imshow('frame', canny_image)  #pas return juste canny mais superposé au reste en tres transparent
+            key = cv2.waitKey(1) & 0xFF
+            rawCapture.truncate(0)  #clear the system in preparation for the next frame
+            if key == ord("q"):  #break the loop when 'q' key is pressed
+                break
+lane_following_display('canny')
+
+
+def reste():
+    #lane
+        image2 = np.uint8(image)
+        #cvtColor(dst, cdst, CV_GRAY2BGR)
+        lines = ld.hough_lines(image2, ld.rho, ld.theta, ld.threshold, ld.min_line_length, ld.max_line_gap)
+        right_m, right_b, left_m, left_b = ld.get_line_equations(image2, lines, ld.theshold)
+        y2 = image_height * (1 - relative_height)
+        right_x1 = int((image_height - right_b) / right_m)
+        right_x2 = int((y2 - right_b) / right_m)
+        left_x1 = int((image_height - left_b) / left_m)
+        left_x2 = int((y2 - left_b) / left_m)
+        cv2.line(image, (right_x1, image_height), (right_x2, y2), color=(0, 69, 255), thickness=5)
+        cv2.line(image, (left_x1, image_height), (left_x2, y2), color=(0, 69, 255), thickness=5)
+
+
