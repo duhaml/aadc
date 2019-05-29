@@ -223,11 +223,6 @@ def detect_directory(directory, function):
 """Tests"""
 
 
-show_polygones(easy_give_signs(cv2.imread(r'Test_images\test_rouge.jpg')))
-# for mask in pm.detect_image_component(classed_polygons["circles"]["bw"][0], help_components):
-#     find_shape(mask, show=True)
-
-
 """takes the image path and shows 
 the cropped images containing the traffic sign"""
 # trouve_panneau(r'Test_images\test_rouge.jpg')  # marche
