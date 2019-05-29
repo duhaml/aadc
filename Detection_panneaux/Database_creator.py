@@ -30,9 +30,18 @@ def create_directory(old_dir, new_dir, basewidth = BASEWIDTH):
                 break
 
 
-# print(Image.open(r"Test_images\limvit.jpg").shape)
-# cv2.imwrite('limvit2.jpg',resize(cv2.imread(r"Test_images\limvit.jpg")))
-create_directory(r"C:\Users\Antonio\Documents\Projet_Autonomous_Driving\Algorithmes_panneaux\Dataset\Detection_dataset", r"C:\Users\Antonio\Documents\Projet_Autonomous_Driving\Dataset_test")
+# create_directory(r"C:\Users\Antonio\Documents\Projet_Autonomous_Driving\Algorithmes_panneaux\Dataset\Detection_dataset", r"C:\Users\Antonio\Documents\Projet_Autonomous_Driving\Dataset_test")
+
+def directory_renamer(prefix, directory):
+    "renames all the file in a directory so that they have the prefix"
+    i = 0
+    for root, dirs, files in os.walk(directory):
+
+        for filename in files:
+            os.rename(directory + '\\' + filename, directory + '\\' + prefix + str(i) + ".ppm")
+            i += 1
+
+directory_renamer("attention", r'C:\Users\Antonio\Documents\Projet_Autonomous_Driving\Algorithmes_panneaux\Dataset\Reconnaissance\Attention')
 
 
 
