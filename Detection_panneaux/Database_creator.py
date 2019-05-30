@@ -30,7 +30,7 @@ def create_directory(old_dir, new_dir, basewidth = BASEWIDTH):
                 break
 
 
-# create_directory(r"C:\Users\Antonio\Documents\Projet_Autonomous_Driving\Algorithmes_panneaux\Dataset\Detection_dataset", r"C:\Users\Antonio\Documents\Projet_Autonomous_Driving\Dataset_test")
+# create_directory(r"", r"")
 
 def directory_renamer(prefix, directory):
     "renames all the file in a directory so that they have the prefix"
@@ -41,7 +41,20 @@ def directory_renamer(prefix, directory):
             os.rename(directory + '\\' + filename, directory + '\\' + prefix + str(i) + ".ppm")
             i += 1
 
-directory_renamer("attention", r'C:\Users\Antonio\Documents\Projet_Autonomous_Driving\Algorithmes_panneaux\Dataset\Reconnaissance\Attention')
+# directory_renamer("", r'')
 
+def directory_converter(old_directory,new_directory,new_format):
+    """takes the path of a directory and converts the image format to new_format"""
+    i = 0
+    for root, dirs, files in os.walk(old_directory):
+        for filename in files:
+            image = cv2.imread(old_directory + '\\' + filename)
+            filename = filename.split('.')
+            cv2.imwrite(new_directory + '\\' + filename[0] + new_format,image)
+            i += 1
+
+# directory_converter(r'',
+                    r'',
+                    '.jpg')
 
 
