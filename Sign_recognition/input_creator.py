@@ -60,7 +60,7 @@ def reshape_masks(masks, category_number):
     return final_mask
 
 
-def normalisation(image_path,components,category_number):
+def normalisation(image_path,category_number,components=help_components):
     """takes the image path and returns the vector with values between 0 and 1
     for the masks of each component"""
     matrix_img = image2array(image_path)
@@ -69,3 +69,32 @@ def normalisation(image_path,components,category_number):
     normalized_vector = vector / 255
     return normalized_vector
 
+
+def load_input_with_shuffle(directory,first_image_path,category_number):
+    """return the shuffled normalized matrix of the entire directory with the corrected output in the end"""
+    final_matrix = normalisation(first_image_path,category_number)
+    i = 0
+    for root, dirs, files in os.walk(directory):
+        for filename in files:
+            if i != 0:
+                new_img = normalisation(directory + '\\' + filename,category_number)
+                final_matrix = numpy.concatenate((final_matrix, new_img), axis=1)
+            i += 1
+    compteur = 0
+    for root, dirs, files in os.walk(directory):
+            for filename in files:
+                if "attention" in filename:
+                    final_matrix[(final_matrix.shape[0]-category_number),compteur]=1
+                if "priorite" in filename:
+                    final_matrix[(final_matrix.shape[0]-category_number+1),compteur]=1
+                else:
+                    final_matrix[((final_matrix.shape[0]-1),compteur)] = 1
+                compteur+=1
+    final_matrix = final_matrix.T
+    numpy.random.shuffle(final_matrix)
+    return final_matrix.T
+
+#Test
+# print(load_input_with_shuffle(r"C:\Users\Antonio\Documents\Projet_Autonomous_Driving\Dataset_global\Dataset_entrainement_triangle\trianglesred_entrainement",
+#       r"C:\Users\Antonio\Documents\Projet_Autonomous_Driving\Dataset_global\Dataset_entrainement_triangle\trianglesred_entrainement\attention0.jpg",
+#       3).shape == (1571, 354))
