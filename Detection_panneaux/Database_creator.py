@@ -17,6 +17,7 @@ def create_directory(old_dir, new_dir, basewidth = BASEWIDTH):
     i = 0
     for root, dirs, files in os.walk(old_dir):
         for filename in files:
+            # print(filename)
             classed_polygons = dm.easy_give_signs(cv2.imread(old_dir + '\\' + filename))
             for poly_type in classed_polygons.keys():
                 for color in classed_polygons[poly_type].keys():
@@ -30,18 +31,13 @@ def create_directory(old_dir, new_dir, basewidth = BASEWIDTH):
                 break
 
 
-# create_directory(r"", r"")
-
 def directory_renamer(prefix, directory):
     "renames all the file in a directory so that they have the prefix"
     i = 0
     for root, dirs, files in os.walk(directory):
-
         for filename in files:
-            os.rename(directory + '\\' + filename, directory + '\\' + prefix + str(i) + ".ppm")
+            os.rename(directory + '\\' + filename, directory + '\\' + prefix + str(i) + ".jpg")
             i += 1
-
-# directory_renamer("", r'')
 
 def directory_converter(old_directory,new_directory,new_format):
     """takes the path of a directory and converts the image format to new_format"""
@@ -52,9 +48,4 @@ def directory_converter(old_directory,new_directory,new_format):
             filename = filename.split('.')
             cv2.imwrite(new_directory + '\\' + filename[0] + new_format,image)
             i += 1
-
-# directory_converter(r'',
-                    r'',
-                    '.jpg')
-
 
