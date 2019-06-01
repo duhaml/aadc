@@ -4,7 +4,7 @@ import numpy as np
 import math
 
 # CONSTANTES
-alpha = 1000
+first_alpha = 100
 # si il est trop lent changer jusqu'a ce qu'a diverge
 epoch_number = 10000
 
@@ -102,19 +102,19 @@ class Nnetwork:
     def accuracy(self, input, output):
         score = 0
         # print(output.shape)
-        A = self.forward_propagation(input,output)[0]
+        A = self.forward_propagation(input, output)[0]
         d = {"out1": 0, "out2": 0, "out3": 0, "A1": 0, "A2": 0, "A3": 0}
         for i in range(input.shape[1]):
             argmaxout, argmaxA = 0, 0
             maxout, maxA = 0, 0
             for j in range(3):
-                if output[j,i] > maxout:
-                    maxout = output[j,i]
+                if output[j, i] > maxout:
+                    maxout = output[j, i]
                     argmaxout = j
 
                 if A[j, i] > maxA:
                     argmaxA = j
-                    maxA = A[j,i]
+                    maxA = A[j, i]
             # print(argmaxout,argmaxA)
             # d["out"+str(argmaxout + 1)]+=1
             # d["A"+str(argmaxA + 1)]+=1
@@ -123,8 +123,7 @@ class Nnetwork:
         # print(d)
         return score / A.shape[1] * 100
 
-
-    def backward_propagation(self, input_matrix, output_matrix, experimental_output):
+    def backward_propagation(self, input_matrix, output_matrix, experimental_output, alpha=first_alpha):
         N = len(self.layers)
         m = np.shape(input_matrix)
         dA = (1 / m[1]) * cost_derivative(output_matrix, experimental_output)
@@ -166,32 +165,33 @@ class Nnetwork:
             if i % 50 == 0:
                 print("Epoch " + str(i) + ": Cost -> " + str(J))
 
-
     def epoch_with_dev_set(self, input_matrix, experimental_output, dev_input, dev_output):
         """takes the input and output and the matrix of the dev set ans trains it until
         the calculations get to a stable minimum of the dev training"""
         i = 0
-        results = [2,3,4,5]
-        while results != sorted(results)[::-1] or results[-1]<96:
-            Acc = self.accuracy(dev_input,dev_output)
+        results = [2, 3, 4, 5]
+        decreasing_alpha = first_alpha
+        while results != sorted(results)[::-1] or results[-1] < 96:
+            Acc = self.accuracy(dev_input, dev_output)
             (A, J) = self.forward_propagation(input_matrix, experimental_output)
             if i % 50 == 0:
                 print("Epoch " + str(i) + ": Cost -> " + str(J))
                 print("This NN has an accuracy of " + str(Acc) + "%")
-            self.backward_propagation(input_matrix, A, experimental_output)
+            if results[-1] - results[-2] > 10:
+                decreasing_alpha /= 10
+            self.backward_propagation(input_matrix, A, experimental_output, alpha=decreasing_alpha)
             i += 1
             results.append(Acc)
             x = results.pop(0)
 
-
-    def save(self):
-        np.save('saved_weights.npy', self.weights)
-        np.save('saved_bias.npy', self.bias)
+    def save(self, directory, nn_name):
+        np.save(directory + '\\' + 'saved_weights' + nn_name + '.npy', self.weights)
+        np.save(directory + '\\' + 'saved_bias' + nn_name + '.npy', self.bias)
         pass
 
-    def load(self, weights, bias):
-        self.weights = np.load(weights)
-        self.bias = np.load(bias)
+    def load(self, weights_path, bias_path):
+        self.weights = np.load(weights_path)
+        self.bias = np.load(bias_path)
         pass
 
 

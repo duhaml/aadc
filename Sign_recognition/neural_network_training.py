@@ -10,7 +10,6 @@ input = load_input_with_shuffle(
     r"C:\Users\Antonio\Documents\Projet_Autonomous_Driving\Dataset_global\Dataset_entrainement_triangle\trianglesred_entrainement\attention46.jpg",
     CATEGORY_NUMBER)
 
-
 input_matrix1 = input[:(input.shape[0] - CATEGORY_NUMBER), :]
 experimental_input1 = input[(input.shape[0] - CATEGORY_NUMBER):input.shape[0], :]
 inp, outp = input_matrix1.shape, experimental_input1.shape
@@ -31,7 +30,6 @@ def trains_neural(input_matrix, experimental_matrix, NN, dev_input, dev_output):
 
 trains_neural(input_matrix1, experimental_input1, NN1, dev_inp, dev_out)
 
-
 test_images = load_input_with_shuffle(
     r"C:\Users\Antonio\Documents\Projet_Autonomous_Driving\Dataset_global\Dataset_entrainement_triangle\trianglesred_test",
     r"C:\Users\Antonio\Documents\Projet_Autonomous_Driving\Dataset_global\Dataset_entrainement_triangle\trianglesred_test\attention23.jpg",
@@ -40,4 +38,6 @@ test_images = load_input_with_shuffle(
 test_inp = test_images[:(input.shape[0] - CATEGORY_NUMBER), :]
 test_out = test_images[(input.shape[0] - CATEGORY_NUMBER):input.shape[0], :]
 
-print("On the test set the NN has an accuracy of: " + str(NN1.accuracy(test_inp,test_out)))
+print("On the test set the NN has an accuracy of: " + str(NN1.accuracy(test_inp, test_out)))
+
+NN1.save(r'C:\Users\Antonio\Documents\Projet_Autonomous_Driving\aadc\Sign_recognition\Neural_networks', "red_triangles")
