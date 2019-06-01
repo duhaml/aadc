@@ -85,10 +85,10 @@ def load_input_with_shuffle(directory,first_image_path,category_number):
             for filename in files:
                 if "attention" in filename:
                     final_matrix[(final_matrix.shape[0]-category_number),compteur]=1
-                if "priorite" in filename:
+                elif "priorite" in filename:
                     final_matrix[(final_matrix.shape[0]-category_number+1),compteur]=1
                 else:
-                    final_matrix[((final_matrix.shape[0]-1),compteur)] = 1
+                    final_matrix[((final_matrix.shape[0]-category_number+2),compteur)] = 1
                 compteur+=1
     final_matrix = final_matrix.T
     numpy.random.shuffle(final_matrix)
@@ -96,5 +96,8 @@ def load_input_with_shuffle(directory,first_image_path,category_number):
 
 #Test
 # print(load_input_with_shuffle(r"C:\Users\Antonio\Documents\Projet_Autonomous_Driving\Dataset_global\Dataset_entrainement_triangle\trianglesred_entrainement",
-#       r"C:\Users\Antonio\Documents\Projet_Autonomous_Driving\Dataset_global\Dataset_entrainement_triangle\trianglesred_entrainement\attention0.jpg",
-#       3).shape == (1571, 354))
+#       r"C:\Users\Antonio\Documents\Projet_Autonomous_Driving\Dataset_global\Dataset_entrainement_triangle\trianglesred_entrainement\attention49.jpg",
+#       3)[1568:1571,0:20])
+# #
+# 1571, 354)
+# (input.shape[0] - CATEGORY_NUMBER):input.shape[0], :

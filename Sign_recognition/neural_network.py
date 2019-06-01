@@ -4,7 +4,7 @@ import numpy as np
 import math
 
 # CONSTANTES
-alpha = 10
+alpha = 1000
 # si il est trop lent changer jusqu'a ce qu'a diverge
 epoch_number = 10000
 
@@ -101,13 +101,26 @@ class Nnetwork:
 
     def accuracy(self, input, output):
         score = 0
+        # print(output.shape)
         A = self.forward_propagation(input,output)[0]
+        d = {"out1": 0, "out2": 0, "out3": 0, "A1": 0, "A2": 0, "A3": 0}
         for i in range(input.shape[1]):
-            a,b,c = output[0, i], output[1,i], output[2,i]
-            x,y,z = A[0, i], A[1, i], A[2, i]
-            proximity = max(abs(a-x),abs(b-y),abs(z-c))
-            if proximity <= 0.5:
+            argmaxout, argmaxA = 0, 0
+            maxout, maxA = 0, 0
+            for j in range(3):
+                if output[j,i] > maxout:
+                    maxout = output[j,i]
+                    argmaxout = j
+
+                if A[j, i] > maxA:
+                    argmaxA = j
+                    maxA = A[j,i]
+            # print(argmaxout,argmaxA)
+            # d["out"+str(argmaxout + 1)]+=1
+            # d["A"+str(argmaxA + 1)]+=1
+            if argmaxA == argmaxout:
                 score += 1
+        # print(d)
         return score / A.shape[1] * 100
 
 
@@ -159,10 +172,9 @@ class Nnetwork:
         the calculations get to a stable minimum of the dev training"""
         i = 0
         results = [2,3,4,5]
-        while results != sorted(results)[::-1] or results[-1]<99:
+        while results != sorted(results)[::-1] or results[-1]<96:
             Acc = self.accuracy(dev_input,dev_output)
             (A, J) = self.forward_propagation(input_matrix, experimental_output)
-
             if i % 50 == 0:
                 print("Epoch " + str(i) + ": Cost -> " + str(J))
                 print("This NN has an accuracy of " + str(Acc) + "%")
@@ -170,7 +182,7 @@ class Nnetwork:
             i += 1
             results.append(Acc)
             x = results.pop(0)
-            # print(results)
+
 
     def save(self):
         np.save('saved_weights.npy', self.weights)
