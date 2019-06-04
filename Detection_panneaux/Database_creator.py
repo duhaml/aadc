@@ -6,6 +6,8 @@ import cv2
 from shutil import copyfile
 import random as rd
 import Detection_module as dm
+import numpy as np
+
 
 BASEWIDTH = 28
 
@@ -22,14 +24,12 @@ def create_directory(old_dir, new_dir, basewidth = BASEWIDTH):
             for poly_type in classed_polygons.keys():
                 for color in classed_polygons[poly_type].keys():
                     for image in classed_polygons[poly_type][color]:
-                        if i % 100 == 0:
-                            print(i)
+                        print(i)
                         resized_img = resize(image, basewidth = basewidth)
                         cv2.imwrite(new_dir + '\\' + poly_type + color + '\\' + str(i) + '.jpg',resized_img)
                         i+=1
             if i > 10000:
                 break
-
 
 def directory_renamer(prefix, directory):
     "renames all the file in a directory so that they have the prefix"
@@ -44,8 +44,8 @@ def directory_converter(old_directory,new_directory,new_format):
     i = 0
     for root, dirs, files in os.walk(old_directory):
         for filename in files:
-            image = cv2.imread(old_directory + '\\' + filename)
-            filename = filename.split('.')
-            cv2.imwrite(new_directory + '\\' + filename[0] + new_format,image)
-            i += 1
 
+            img = Image.open(old_directory + '\\' + filename)
+            filename = filename.split('.')
+            img.save(new_directory + '\\' + filename[0] + str(i) + new_format)
+            i += 1
