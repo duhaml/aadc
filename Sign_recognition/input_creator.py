@@ -70,8 +70,10 @@ def normalisation(image_path,category_number,components=help_components):
     return normalized_vector
 
 
-def load_input_with_shuffle(directory,first_image_path,category_number):
-    """return the shuffled normalized matrix of the entire directory with the corrected output in the end"""
+def load_input_with_shuffle(directory,first_image_path,category_number,categories):
+    """ takes the directory_path, the path of the first image of the directory, the number of categories
+    and the list of categories in the order of the output_dataset format and
+    returns the shuffled normalized matrix of the entire directory with the corrected output in the end"""
     final_matrix = normalisation(first_image_path,category_number)
     i = 0
     for root, dirs, files in os.walk(directory):
@@ -83,12 +85,9 @@ def load_input_with_shuffle(directory,first_image_path,category_number):
     compteur = 0
     for root, dirs, files in os.walk(directory):
             for filename in files:
-                if "attention" in filename:
-                    final_matrix[(final_matrix.shape[0]-category_number),compteur]=1
-                elif "priorite" in filename:
-                    final_matrix[(final_matrix.shape[0]-category_number+1),compteur]=1
-                else:
-                    final_matrix[((final_matrix.shape[0]-category_number+2),compteur)] = 1
+                for i in range(category_number):
+                    if categories[i] in filename:
+                        final_matrix[(final_matrix.shape[0]-category_number+i),compteur]=1
                 compteur+=1
     final_matrix = final_matrix.T
     numpy.random.shuffle(final_matrix)
