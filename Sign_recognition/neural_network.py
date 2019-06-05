@@ -71,10 +71,10 @@ class Nnetwork:
 
         a = input_vector
         for i in range(1, N):
-            w = self.weights[i]
-            b = self.bias[i]
+            w = self.weights[i-1]
+            b = self.bias[i-1]
             z = np.dot(w, a) + b
-            a = self.functions[i](z)
+            a = self.functions[i-1](z)
 
         return a
 
@@ -103,7 +103,7 @@ class Nnetwork:
         score = 0
         # print(output.shape)
         A = self.forward_propagation(input, output)[0]
-        d = {"out1": 0, "out2": 0, "out3": 0, "A1": 0, "A2": 0, "A3": 0}
+        # d = {"out1": 0, "out2": 0, "out3": 0, "A1": 0, "A2": 0, "A3": 0}
         for i in range(input.shape[1]):
             argmaxout, argmaxA = 0, 0
             maxout, maxA = 0, 0
@@ -171,10 +171,10 @@ class Nnetwork:
         i = 0
         results = [2, 3, 4, 5]
         decreasing_alpha = first_alpha
-        while results != sorted(results)[::-1] or results[-1] < 96:
+        while results != sorted(results)[::-1] or results[-1] < 95:
             Acc = self.accuracy(dev_input, dev_output)
             (A, J) = self.forward_propagation(input_matrix, experimental_output)
-            if i % 50 == 0:
+            if i % 10 == 0:
                 print("Epoch " + str(i) + ": Cost -> " + str(J))
                 print("This NN has an accuracy of " + str(Acc) + "%")
             if results[-1] - results[-2] > 10:
@@ -190,8 +190,8 @@ class Nnetwork:
         pass
 
     def load(self, weights_path, bias_path):
-        self.weights = np.load(weights_path)
-        self.bias = np.load(bias_path)
+        self.weights = np.load(weights_path, allow_pickle=True)
+        self.bias = np.load(bias_path,allow_pickle=True)
         pass
 
 
