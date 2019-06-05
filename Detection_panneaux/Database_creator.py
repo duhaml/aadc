@@ -25,7 +25,7 @@ def create_directory(old_dir, new_dir, basewidth = BASEWIDTH):
                 for color in classed_polygons[poly_type].keys():
                     for image in classed_polygons[poly_type][color]:
                         print(i)
-                        resized_img = resize(image, basewidth = basewidth)
+                        resized_img = resize(image[1], basewidth = basewidth)
                         cv2.imwrite(new_dir + '\\' + poly_type + color + '\\' + str(i) + '.jpg',resized_img)
                         i+=1
             if i > 10000:
