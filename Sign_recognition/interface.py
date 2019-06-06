@@ -16,7 +16,7 @@ POLYGON_CATEGORIES = {"triangles": {"red": ["attention", "priorite", "autre"], "
                       "rectangles": {"red": [], "blue": ["parking", "passage_p", "autre"]},
                       "circles": {"red": ["limvit20", "limvit30", "stop", "autre"],
                                   "blue": ["fleche_d", "fleche_g", "autre"]}}
-
+TEXT_H,TEXT_W = 17,70
 
 def show_image(img, title, scale=SCALE_G):
     """takes an image and show it with the right window size"""
@@ -83,18 +83,26 @@ def draw_object(image, object_name, location, category):
 
     if category == "trianglesred":
         cv2.rectangle(image,(x,y),(x+w,y+h),(255,0,0),2)
-        cv2.putText(image, object_name, (x, h), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), lineType=cv2.LINE_AA)
+        cv2.fillConvexPoly(image, np.array([[[x-2, y-TEXT_H]],[[x - 2 + TEXT_W, y -TEXT_H]],[[x - 2 + TEXT_W, y]],[[x-2, y ]]]), color=(255,0,0))
+        cv2.putText(image, object_name, (x, y-5), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), lineType=cv2.LINE_AA)
     elif category == "rectanglesred":
         cv2.rectangle(image,(x,y),(x+w,y+h),(0,255,0),2)
-        cv2.putText(image, object_name, (x, h), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), lineType=cv2.LINE_AA)
+        cv2.fillConvexPoly(image, np.array([[[x-2, y-TEXT_H]],[[x - 2 + TEXT_W, y -TEXT_H]],[[x - 2 + TEXT_W, y]],[[x-2, y ]]]), color=(0,255,0))
+        cv2.putText(image, object_name, (x, y-5), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), lineType=cv2.LINE_AA)
     elif category == "circlesred":
         cv2.rectangle(image,(x,y),(x+w,y+h),(0,0,255),2)
-        cv2.putText(image, object_name, (x, h), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), lineType=cv2.LINE_AA)
+        cv2.fillConvexPoly(image, np.array([[[x-2, y-TEXT_H]],[[x - 2 + TEXT_W, y -TEXT_H]],[[x - 2 + TEXT_W, y]],[[x-2, y ]]]), color=(0,0,255))
+        cv2.putText(image, object_name, (x, y-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), lineType=cv2.LINE_AA)
     elif category == "circlesblue":
         cv2.rectangle(image,(x,y),(x+w,y+h),(0,255,255),2)
-        cv2.putText(image, object_name, (x, h), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), lineType=cv2.LINE_AA)
+        cv2.fillConvexPoly(image, np.array([[[x-2, y-TEXT_H]],[[x - 2 + TEXT_W, y -TEXT_H]],[[x - 2 + TEXT_W, y]],[[x-2, y ]]]), color=(0,255,255))
+        cv2.putText(image, object_name, (x, y-5), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), lineType=cv2.LINE_AA)
 
-
+# img = np.zeros((1000,1000))
+# draw_object(img,"stop",(120,120,30,30),"circlesred")
+# cv2.imshow("test",img)
+# cv2.waitKey()
+# cv2.destroyAllWindows()
 
 def detected_signs(image, nns, show = False):
     """takes an image matrix and a dictionnary of neural networks and
@@ -123,6 +131,7 @@ def detected_signs(image, nns, show = False):
 
                 #draw the rectangle around the object
                 if category != "autre":
+                    # print(polygon)
                     print(category, polygon_cat+color)
                     draw_object(image,category,location, polygon_cat+color)
 
