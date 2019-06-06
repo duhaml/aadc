@@ -6,26 +6,8 @@
     with a coefficient chosen so that the driving is smooth.
 '''
 
-
-attention='''
-processes rax arrays ?
-séparation de voies
-intersections
-...
-'''
-
-AF='''
-moyenner pour ne pas trop souvent tourner le volant, sinon incomfortable : moyennage sur 3 images puis moyennage des ordres au niveau hardware
-attention fréquence propre
-
-prédiction direction future ?
-aspect route après
-carrefour.
-
-dépassement'''
-
-
 import numpy as np
+import lane_detector as ld
 
 
 def vanishingPoint(right_m, right_b, left_m, left_b):
@@ -45,7 +27,7 @@ def vanishingPoint(right_m, right_b, left_m, left_b):
         return x,y
 
 
-def direction(image,vanishingPoint):
+def direction(image, vanishing_point):
     """
     :param image: the reference image (to get its shape. We can also get it once and put it as a global parameter as long as the camera doesn't change.
     :param vanishingPoint: the point to which the car should head (coordinates in relative size of the image)
@@ -55,6 +37,13 @@ def direction(image,vanishingPoint):
         return
     else:
         x_center = image.shape[1]/2 #x coordinate of the center of the image
-        x,y = vanishingPoint
+        x,y = vanishing_point
         theta = np.arctan( (x-x_center)/y )
         return theta
+
+
+def lane_follower(frame):
+    right_m, right_b, left_m, left_b = ld.lane_detector(frame)
+    vanishing_point = vanishingPoint(right_m, right_b, left_m, left_b)
+    theta = direction(frame, vanishing_point)
+    return theta
