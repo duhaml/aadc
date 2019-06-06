@@ -8,7 +8,7 @@ import cv2
 # from image_resizer import *
 
 
-help_components = {"white": [[[0, 0, 100], [255, 100, 255]]], "black": [[[0, 0, 0], [255, 100, 100]]]}
+HELP_COMPONENTS = {"white": [[[0, 0, 100], [255, 100, 255]]], "black": [[[0, 0, 0], [255, 100, 100]]]}
 scale_g = 0.5
 
 def image2array(img):
@@ -60,7 +60,7 @@ def reshape_masks(masks, category_number):
     return final_mask
 
 
-def normalisation(image_path,category_number,components=help_components):
+def normalisation(image_path, category_number, components=HELP_COMPONENTS):
     """takes the image path and returns the vector with values between 0 and 1
     for the masks of each component"""
     matrix_img = image2array(image_path)

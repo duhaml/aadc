@@ -177,7 +177,7 @@ def easy_give_signs(img):
             (x, y), h, w = capt_rectangle(triangle)
             crop_img = img[y:y + h, x:x + w]
             ratio = h / w
-            if ratio < 2 and ratio > 0.5:
+            if 2 > ratio > 0.5:
                 if i:
                     classed_polygons["triangles"]["red"].append((((x,y, h, w)), crop_img))
                 else:
@@ -186,7 +186,7 @@ def easy_give_signs(img):
             (x, y), h, w = capt_rectangle(rectangle)
             crop_img = img[y:y + h, x:x + w]
             ratio = h / w
-            if ratio < 2 and ratio > 0.5:
+            if 2 > ratio > 0.5:
                 if i:
                     classed_polygons["rectangles"]["red"].append(((x, y, h, w), crop_img))
                 else:
@@ -195,7 +195,7 @@ def easy_give_signs(img):
             (x, y), h, w = capt_rectangle(circle)
             crop_img = img[y:y + h, x:x + w]
             ratio = h / w
-            if ratio < 2 and ratio > 0.5:
+            if 2 > ratio > 0.5:
                 if i:
                     classed_polygons["circles"]["red"].append(((x,y, h, w), crop_img))
                 else:

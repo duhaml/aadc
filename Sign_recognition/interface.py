@@ -70,7 +70,7 @@ def reshape_masks(masks, category_number):
 def normalisation(matrix_img, category_number, components=HELP_COMPONENTS):
     """takes the image path and returns the vector with values between 0 and 1
     for the masks of each component"""
-    masks = detect_image_component(matrix_img, help_components)
+    masks = detect_image_component(matrix_img, components)
     vector = reshape_masks(masks, category_number)
     normalized_vector = vector / 255
     return normalized_vector
