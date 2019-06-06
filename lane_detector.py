@@ -11,30 +11,15 @@
 9) From these equations, compute the equations of the right/left lane lines : get_equations()
 '''
 
-attention="""
-processes raw arrays ?
-virages très prononcés (ex à droite, pente positive)
-grayscale,... utile ? (à part pour GUI...)
-hough ou d'autres ?
-si détecte pas ce qu'il faut, ou rien ? faire des disjonctions de cas et des erreurs, cf SIP.
-"""
-
-AF="""
-faire mask avant canny ?
-refondre interface graphique pour les tests
-robuste aux reflets et aux changement de couleur des lignes
-map out the full extent of the lane (not just straight lines but proper curves, if vision not obstructed)
-line width check
-line lenght check
-dépassements
-if no line found, RALPH 
-"""
-
 
 import numpy as np
 import cv2
 
-# Global parameters
+## Global parameters
+
+
+# color filtering
+white_threshold = 200 #130      not enough white detected : more contrast, better than adjusting luminosity
 
 # Gaussian smoothing
 kernel_size = 3
@@ -48,6 +33,7 @@ high_threshold = 150
 trap_bottom_width = 0.85  # width of bottom edge of trapezoid, expressed as percentage of image width
 trap_top_width = 0.07  # idem for top edge of trapezoid
 trap_height = 0.4  # height of the trapezoid expressed as percentage of image height
+
 
 # Hough Transform
 rho = 2  # distance resolution in pixels of the Hough grid
@@ -68,25 +54,24 @@ slope_threshold = 0.5
 def filter_colors(image):
     """
     Filter the image to include only yellow and white pixels.
-    doesn't affect the original image
+    /!\ affects the original image
     """
     # Filter white pixels
-    white_threshold = 200 #130
     lower_white = np.array([white_threshold, white_threshold, white_threshold])
     upper_white = np.array([255, 255, 255])
     white_mask = cv2.inRange(image, lower_white, upper_white)
     white_image = cv2.bitwise_and(image, image, mask=white_mask)
 
     # Filter yellow pixels
-    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    lower_yellow = np.array([90,100,100])
-    upper_yellow = np.array([110,255,255])
-    yellow_mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
-    yellow_image = cv2.bitwise_and(image, image, mask=yellow_mask)
+        #hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        #lower_yellow = np.array([90,100,100])
+        #upper_yellow = np.array([110,255,255])
+        #yellow_mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
+        #yellow_image = cv2.bitwise_and(image, image, mask=yellow_mask)
 
-    image2 = cv2.addWeighted(white_image, 1.0, yellow_image, 1.0, 0.) # Combine the two above images
+        #image2 = cv2.addWeighted(white_image, 1.0, yellow_image, 1.0, 0.) # Combine the two above images
 
-    return image2
+    return white_image
 
 
 def grayscale(image):
@@ -105,6 +90,27 @@ def gaussian_blur(image, kernel_size):
 def canny(image, low_threshold, high_threshold):
     """Applies the Canny transform : only keeps the edges"""
     return cv2.Canny(image, low_threshold, high_threshold)
+
+
+def get_ROI_vertices(image, thêta=0):
+    """
+    :param image:
+    :param thêta: the angle returned by lane follower (eventually the ROI will adapt to the road)
+    :return: an array containing the 4 vertices
+    """
+    image_height = image.shape[0]
+    image_width = image.shape[1]
+
+    bottom_left_point = [(1-trap_bottom_width*image_width)/2, 0]
+    bottom_right_point = [(1+trap_bottom_width*image_width)/2, 0]
+    top_left_point = [(1-trap_top_width*image_width)/2, trap_height*image_height]
+    top_right_point = [(1+trap_top_width*image_width)/2, trap_height*image_height]
+
+    vertices = np.array([bottom_left_point, bottom_right_point, top_left_point, top_right_point], np.int32)
+    vertices.reshape((-1, 1, 2))
+
+    return [vertices]
+
 
 
 def region_of_interest(image, vertices):
@@ -142,7 +148,6 @@ def hough_lines(image, rho, theta, threshold, min_line_length, max_line_gap):
     :param max_line_gap: maximum gap in pixels between connectable line segments
     :return: an image with Hough lines drawn on it      #######?
     """
-    ### autres trucs inutiles si appliqué à image dès maintenant ?
     return cv2.HoughLinesP(image, rho, theta, threshold, np.array([]), minLineLength=min_line_length, maxLineGap=max_line_gap)
 
 
@@ -155,7 +160,8 @@ def get_line_equations(image, lines, slope_threshold):
     """
     """
     1) separating line segments by their slope ((y2-y1)/(x2-x1)) to decide if they are part of the left
-    line vs. the right line. # carefull, harsh asumptions made
+    line vs. the right line. 
+    # carefull, harsh asumptions made
     2) average the position of each of the lines and extrapolate to the top and bottom of the lane.
     """
     # In case of error, don't draw the line(s)
@@ -239,3 +245,21 @@ def get_line_equations(image, lines, slope_threshold):
 
     return right_m, right_b, left_m, left_b
 
+
+
+# End helper functions
+
+
+# Main script
+
+
+
+def lane_detector(frame):
+    color_filtered_image = filter_colors(frame)
+    gray = grayscale(color_filtered_image)
+    vertices = get_ROI_vertices(gray)
+    ROI_image = region_of_interest(gray, vertices)
+    Canny = canny(ROI_image, low_threshold, high_threshold)
+    Hough_lines = hough_lines(Canny, rho, theta, threshold, min_line_length, max_line_gap)
+    right_m, right_b, left_m, left_b = get_line_equations(frame, Hough_lines, slope_threshold)
+    return right_m, right_b, left_m, left_b
