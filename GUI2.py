@@ -98,8 +98,8 @@ def lane_following_display(stage = 'all', duration=np.inf, saveVideo=False):
                 break
             continue
 
-        #edge detection
-        if stage == 'canny'
+        #edge detection:
+        if stage == 'canny':
             color_filtered_image = ld.filter_colors(image)
             gray = ld.grayscale(color_filtered_image)
             #imageUInt8 = np.uint8(gray) if needed, then change in drawnROI_image
