@@ -17,6 +17,7 @@ POLYGON_CATEGORIES = {"triangles": {"red": ["attention", "priorite", "autre"], "
                       "circles": {"red": ["limvit20", "limvit30", "stop", "autre"],
                                   "blue": ["fleche_d", "fleche_g", "autre"]}}
 TEXT_H, TEXT_W = 17, 70
+VALID_CATEGORIES = ["trianglesred", "rectanglesblue", "circlesred", "circlesblue"]
 
 
 def show_image(img, title, scale=SCALE_G):
@@ -92,14 +93,8 @@ def draw_object(image, object_name, location, category):
     cv2.rectangle(image, (x, y), (x + w, y + h), color, 2)
     cv2.fillConvexPoly(image, np.array(
         [[[x - 2, y - TEXT_H]], [[x - 2 + TEXT_W, y - TEXT_H]], [[x - 2 + TEXT_W, y]], [[x - 2, y]]]), color=color)
-    cv2.putText(image, object_name, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), lineType=cv2.LINE_AA)
+    cv2.putText(image, object_name, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), lineType=cv2.LINE_AA)
 
-
-# img = np.zeros((1000,1000))
-# draw_object(img,"stop",(120,120,30,30),"circlesred")
-# cv2.imshow("test",img)
-# cv2.waitKey()
-# cv2.destroyAllWindows()
 
 def detected_signs(image, nns, show=False):
     """takes an image matrix and a dictionnary of neural networks and
@@ -112,25 +107,27 @@ def detected_signs(image, nns, show=False):
                          "circles": {"red": [], "blue": []}}
     for polygon_cat in classed_polygons.keys():
         for color in classed_polygons[polygon_cat].keys():
-            polygons = classed_polygons[polygon_cat][color]
-            for polygon in polygons:
-                location, img_polygon = polygon
-                # find the category
-                resized_img = resize(img_polygon, basewidth=BASEWIDTH)
-                neural_net = nns[polygon_cat + color]
-                category_nbre = neural_net.layers[-1]
-                input_vect = normalisation(resized_img, category_nbre)
-                output_vect = neural_net.calculate(input_vect)
-                argmaxi = np.argmax(output_vect)
-                # for future functions
-                category = POLYGON_CATEGORIES[polygon_cat][color][argmaxi]
-                output_categories[polygon_cat][color].append(category)
+            cla_col = polygon_cat + color
+            if cla_col in VALID_CATEGORIES:
+                polygons = classed_polygons[polygon_cat][color]
+                for polygon in polygons:
+                    location, img_polygon = polygon
+                    # find the category
+                    resized_img = resize(img_polygon, basewidth=BASEWIDTH)
+                    neural_net = nns[cla_col]
+                    category_nbre = neural_net.layers[-1]
+                    input_vect = normalisation(resized_img, category_nbre)
+                    output_vect = neural_net.calculate(input_vect)
+                    argmaxi = np.argmax(output_vect)
+                    # for future functions
+                    category = POLYGON_CATEGORIES[polygon_cat][color][argmaxi]
+                    output_categories[polygon_cat][color].append(category)
 
-                # draw the rectangle around the object
-                if category != "autre":
-                    # print(polygon)
-                    print(category, polygon_cat + color)
-                    draw_object(image, category, location, polygon_cat + color)
+                    # draw the rectangle around the object
+                    if category != "autre":
+                        # print(polygon)
+                        print(category, polygon_cat + color)
+                        draw_object(image, category, location, cla_col)
 
     if show:
         show_image(image, "recognized_signs")

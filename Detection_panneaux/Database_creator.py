@@ -44,8 +44,12 @@ def directory_converter(old_directory,new_directory,new_format):
     i = 0
     for root, dirs, files in os.walk(old_directory):
         for filename in files:
-
+            if i%100 == 0:
+                print(i)
             img = Image.open(old_directory + '\\' + filename)
             filename = filename.split('.')
             img.save(new_directory + '\\' + filename[0] + str(i) + new_format)
             i += 1
+
+
+

@@ -232,7 +232,7 @@ the cropped images containing the traffic sign"""
 # trouve_panneau('signalisation.jpg') #marche
 # trouve_panneau('test.jpg') #marche plus ou moins
 
-# montre_polygones('test_rouge.jpg')
+# montre_polygones(r'Test_images\test_rouge.jpg')
 # montre_polygones('test_rouge_2.jpg')#marche
 # montre_polygones('stop.jpg') #marche
 # montre_polygones('russian_image.jpg') #marche
