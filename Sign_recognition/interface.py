@@ -84,7 +84,7 @@ def draw_object(image, object_name, location, category):
     (x, y, h, w) = location
     if category == "trianglesred":
         color = (255, 0, 0)
-    elif category == "rectanglesred":
+    elif category == "rectanglesblue":
         color = (0, 255, 0)
     elif category == "circlesred":
         color = (0, 0, 255)
