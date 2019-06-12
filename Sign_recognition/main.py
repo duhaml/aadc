@@ -10,7 +10,7 @@ image = cv2.imread(r"C:\Users\Antonio\Documents\Projet_Autonomous_Driving\aadc\D
 NN_blue_circles = Nnetwork([IMAGE_SIZE, 8, 7, 3], [sigmoid, sigmoid, sigmoid, sigmoid])
 NN_rectangles = Nnetwork([IMAGE_SIZE, 6, 3], [sigmoid, sigmoid, sigmoid, sigmoid])
 NN_red_circles = Nnetwork([IMAGE_SIZE, 6, 4], [sigmoid, sigmoid, sigmoid, sigmoid])
-NN_red_triangles = Nnetwork([IMAGE_SIZE, 5, 5, 3], [sigmoid, sigmoid, sigmoid, sigmoid])
+NN_red_triangles = Nnetwork([IMAGE_SIZE, 6, 3], [sigmoid, sigmoid, sigmoid, sigmoid])
 
 
 NN_blue_circles.load(r"C:\Users\Antonio\Documents\Projet_Autonomous_Driving\aadc\Sign_recognition\Neural_networks\saved_weightsblue_circles.npy",
@@ -18,15 +18,28 @@ NN_blue_circles.load(r"C:\Users\Antonio\Documents\Projet_Autonomous_Driving\aadc
 NN_rectangles.load(r"C:\Users\Antonio\Documents\Projet_Autonomous_Driving\aadc\Sign_recognition\Neural_networks\saved_weightsrectangles.npy",
                    r"C:\Users\Antonio\Documents\Projet_Autonomous_Driving\aadc\Sign_recognition\Neural_networks\saved_biasrectangles.npy")
 NN_red_circles.load(r"C:\Users\Antonio\Documents\Projet_Autonomous_Driving\aadc\Sign_recognition\Neural_networks\saved_weightsred_circles.npy",
-                   r"C:\Users\Antonio\Documents\Projet_Autonomous_Driving\aadc\Sign_recognition\Neural_networks\saved_biasred_circles.npy")
+                    r"C:\Users\Antonio\Documents\Projet_Autonomous_Driving\aadc\Sign_recognition\Neural_networks\saved_biasred_circles.npy")
 NN_red_triangles.load(r"C:\Users\Antonio\Documents\Projet_Autonomous_Driving\aadc\Sign_recognition\Neural_networks\saved_weightsred_triangles.npy",
-                   r"C:\Users\Antonio\Documents\Projet_Autonomous_Driving\aadc\Sign_recognition\Neural_networks\saved_biasred_triangles.npy")
+                      r"C:\Users\Antonio\Documents\Projet_Autonomous_Driving\aadc\Sign_recognition\Neural_networks\saved_biasred_triangles.npy")
 
 
 neural_networks = {"trianglesred": NN_red_triangles, "rectanglesblue": NN_rectangles,
                    "circlesred": NN_red_circles, "circlesblue": NN_blue_circles}
 
-start = time.perf_counter()
-a = detected_signs(image, neural_networks, show = True)
-end = time.perf_counter()
-print(end-start)
+
+def detect_directory(directory):
+    """takes a directory path containing the images and detects the signs
+    in each image in the directory"""
+    for root, dirs, files in os.walk(directory):
+        for filename in files:
+            detected_signs(cv2.imread(directory + '\\' + filename), neural_networks, show = True)
+
+detect_directory(r"E:\Photos_panneaux2\fleche_gau")
+
+
+# start = time.perf_counter()
+#
+# a = detected_signs(image, neural_networks, show = True)
+# end = time.perf_counter()
+# print(end-start)
+

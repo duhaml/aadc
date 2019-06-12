@@ -64,7 +64,7 @@ def normalisation(image_path, category_number, components=HELP_COMPONENTS):
     """takes the image path and returns the vector with values between 0 and 1
     for the masks of each component"""
     matrix_img = image2array(image_path)
-    masks = detect_image_component(matrix_img, help_components)
+    masks = detect_image_component(matrix_img, components)
     vector = reshape_masks(masks,category_number)
     normalized_vector = vector / 255
     return normalized_vector

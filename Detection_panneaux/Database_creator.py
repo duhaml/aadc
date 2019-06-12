@@ -36,7 +36,7 @@ def directory_renamer(prefix, directory):
     i = 0
     for root, dirs, files in os.walk(directory):
         for filename in files:
-            os.rename(directory + '\\' + filename, directory + '\\' + prefix + str(i) + ".jpg")
+            os.rename(directory + '\\' + filename, directory + '\\' + prefix + str(100+i) + ".jpg")
             i += 1
 
 def directory_converter(old_directory,new_directory,new_format):
@@ -53,3 +53,4 @@ def directory_converter(old_directory,new_directory,new_format):
 
 
 
+# directory_renamer("stop",r"E:\renamer")
