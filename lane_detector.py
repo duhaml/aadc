@@ -101,12 +101,12 @@ def get_ROI_vertices(image, thêta=0):
     image_height = image.shape[0]
     image_width = image.shape[1]
 
-    bottom_left_point = [(1-trap_bottom_width*image_width)/2, 0]
-    bottom_right_point = [(1+trap_bottom_width*image_width)/2, 0]
-    top_left_point = [(1-trap_top_width*image_width)/2, trap_height*image_height]
-    top_right_point = [(1+trap_top_width*image_width)/2, trap_height*image_height]
+    bottom_left_point = [(1-trap_bottom_width)*image_width/2, image_height]
+    bottom_right_point = [(1+trap_bottom_width)*image_width/2, image_height]
+    top_left_point = [(1-trap_top_width)*image_width/2, (1-trap_height)*image_height]
+    top_right_point = [(1+trap_top_width)*image_width/2, (1-trap_height)*image_height]
 
-    vertices = np.array([bottom_left_point, bottom_right_point, top_left_point, top_right_point], np.int32)
+    vertices = np.array([bottom_left_point, bottom_right_point, top_right_point, top_left_point], np.int32)
     vertices.reshape((-1, 1, 2))
 
     return [vertices]
@@ -263,3 +263,4 @@ def lane_detector(frame):
     Hough_lines = hough_lines(Canny, rho, theta, threshold, min_line_length, max_line_gap)
     right_m, right_b, left_m, left_b = get_line_equations(frame, Hough_lines, slope_threshold)
     return right_m, right_b, left_m, left_b
+    
